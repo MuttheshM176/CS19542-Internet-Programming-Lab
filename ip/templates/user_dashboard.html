@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fff7e6, #ffe680);
+            color: #343a40;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: #343a40;
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: #f0f4f8 !important;
+        }
+
+        h2, h3 {
+            font-weight: 600;
+            color: #e0a800; /* Dark yellow */
+        }
+
+        .list-group-item {
+            font-size: 1rem;
+        }
+
+        .btn-success {
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            background-color: #e0a800; /* Dark yellow */
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background-color: #cc9b00; /* Darker yellow on hover */
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            background-color: #ffffff; /* White background */
+            color: #e0a800; /* Dark yellow text */
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f7e6b5; /* Light yellow on hover */
+            color: #cc9b00; /* Darker yellow */
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h2, h3 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="{{ url_for('home') }}">E-Learning</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2>Welcome, {{ username }}</h2>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Course List -->
+        <h3 class="mt-5">Available Courses</h3>
+        <ul class="list-group mt-3">
+            {% for course in courses %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ course.name }}
+                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#courseModal" onclick="showCourseDetails('{{ course.name }}', '{{ course.description }}', '{{ url_for('enroll', course_id=course._id) }}')">Enroll</button>
+            </li>
+            {% else %}
+            <li class="list-group-item">No courses available</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary mt-4">Logout</a>
+    </div>
+
+    <!-- Modal for Course Details -->
+    <div class="modal fade" id="courseModal" tabindex="-1" aria-labelledby="courseModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="courseModalLabel">Course Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h4 id="modalCourseName"></h4>
+            <p id="modalCourseDescription"></p>
+          </div>
+          <div class="modal-footer">
+            <form id="enrollForm" action="#" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-success">Confirm Enrollment</button>
+            </form>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 E-learning Platform. All rights reserved.</p>
+    </footer>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <!-- Custom JS for handling modal details -->
+    <script>
+        function showCourseDetails(courseName, courseDescription, enrollUrl) {
+            document.getElementById('modalCourseName').innerText = courseName;
+            document.getElementById('modalCourseDescription').innerText = courseDescription;
+            document.getElementById('enrollForm').action = enrollUrl;
+        }
+    </script>
+</body>
+</html>
